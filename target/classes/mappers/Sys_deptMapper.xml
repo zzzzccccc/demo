@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zcx.mapper.Sys_deptMapper">
+    <insert id="insert">
+        insert into sys_dept (pid, title, open, remark, ordernum, createtime)
+        values(#{pid}, #{title}, #{open}, #{remark}, #{ordernum}, #{createtime})
+    </insert>
+    <update id="update">
+        update sys_dept
+        <set>
+            id = #{id},
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="open != null">
+                `open` = #{open},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <sql id="fields">
+        id, pid, title, `open`, remark, available, createtime
+    </sql>
+    <select id="findAll" resultType="com.zcx.pojo.Sys_dept">
+        select <include refid="fields"/> from sys_dept order by ordernum
+    </select>
+    <select id="findById" resultType="com.zcx.pojo.Sys_dept">
+        select <include refid="fields"/> from sys_dept where id = #{deptid}
+    </select>
+</mapper>

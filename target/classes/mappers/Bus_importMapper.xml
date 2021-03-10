@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zcx.mapper.Bus_importMapper">
+    <sql id="fields">
+        id, paytype, import_time, operater, goods_id, import_price, `number`, provider_id, remark
+    </sql>
+    <insert id="insert">
+        insert into bus_import (paytype, import_time, operater, goods_id, import_price, number, provider_id, remark)
+        values (#{paytype}, #{import_time}, #{operater}, #{goods_id}, #{import_price},
+                #{number}, #{provider_id}, #{remark})
+    </insert>
+    <update id="update">
+        update bus_import
+        <set>
+            id = #{id},
+            <if test="number != null">
+                `number` = #{number},
+            </if>
+            <if test="paytype != null and paytype != ''">
+                paytype = #{paytype},
+            </if>
+            <if test="import_time != null">
+                import_time = #{import_time},
+            </if>
+            <if test="operater != null and operater != ''">
+                operater = #{operater},
+            </if>
+            <if test="import_price != null">
+                import_price = #{import_price},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="deleteById">
+        delete from bus_import where id = #{id}
+    </delete>
+    <resultMap id="findImport" type="Bus_import">
+        <id column="id" property="id"/>
+        <result column="goods_id" property="goods_id"/>
+        <result column="provider_id" property="provider_id"/>
+        <association property="bus_goods" column="goods_id" javaType="Bus_goods" select="com.zcx.mapper.Bus_goodsMapper.findById"/>
+        <association property="bus_provider" column="provider_id" javaType="Bus_provider" select="com.zcx.mapper.Bus_providerMapper.findById"/>
+    </resultMap>
+    <select id="findPage" resultMap="findImport" resultType="com.zcx.pojo.Bus_import">
+        select <include refid="fields"/> from bus_import
+        <if test="obj != null">
+            <where>
+                <if test="obj.goods_id != null">
+                    goods_id = #{obj.goods_id}
+                </if>
+                <if test="obj.provider_id != null">
+                    and provider_id = #{obj.provider_id}
+                </if>
+                <if test="obj.startImportTime != null">
+                    and import_time >= #{obj.startImportTime}
+                </if>
+                <if test="obj.endImportTime != null">
+                    and import_time <![CDATA[<=]]> #{obj.endImportTime} <!-- xml解析器对CDATA中的内容不解析 -->
+                </if>
+            </where>
+            order by import_time limit #{offset}, #{rows}
+        </if>
+
+    </select>
+    <select id="totalRows" resultType="java.lang.Integer">
+        select count(id) from bus_import
+    </select>
+    <select id="findById" resultType="com.zcx.pojo.Bus_import">
+        select <include refid="fields"/> from bus_import where id = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zcx.mapper.Bus_saleMapper">
+    <insert id="insert">
+        insert into bus_sale (customer_id, paytype, sale_time, operatorperson, number, remark, sale_price, goods_id)
+        values (#{customer_id}, #{paytype}, #{sale_time}, #{operatorperson}, #{number}, #{remark}, #{sale_price}, #{goods_id})
+    </insert>
+    <update id="update">
+        update bus_sale
+        <set>
+            id = #{id},
+            <if test="paytype != null and paytype != ''">
+                paytype = #{paytype},
+            </if>
+            <if test="sale_time != null">
+                sale_time = #{sale_time},
+            </if>
+            <if test="operatorperson != null and operatorperson != ''">
+                operatorperson = #{operatorperson},
+            </if>
+            <if test="number != null">
+                `number` = #{number},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+            <if test="sale_price != null">
+                sale_price = #{sale_price}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="deleteById">
+        delete from bus_sale where id = #{id}
+    </delete>
+    <sql id="fields">
+        id, customer_id, paytype, sale_time, operatorperson, `number`, remark, sale_price, goods_id
+    </sql>
+    <select id="findPage" resultType="com.zcx.pojo.Bus_sale">
+        select <include refid="fields"/> from bus_sale
+        <if test="obj != null">
+            <where>
+                <if test="obj.customer_id != null">
+                    customer_id = #{obj.customer_id}
+                </if>
+                <if test="obj.goods_id != null">
+                    and goods_id = #{obj.goods_id}
+                </if>
+            </where>
+        </if>
+        limit #{offset}, #{rows}
+    </select>
+    <select id="totalRows" resultType="java.lang.Integer">
+        select count(id) from bus_sale
+    </select>
+    <select id="findById" resultType="com.zcx.pojo.Bus_sale">
+        select <include refid="fields"/> from bus_sale where id = #{id}
+    </select>
+</mapper>

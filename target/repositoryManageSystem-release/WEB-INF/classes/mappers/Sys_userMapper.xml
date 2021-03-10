@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zcx.mapper.Sys_userMapper">
+    <sql id="main_field">
+        id, `name`, loginname, address, sex, remark, pwd, deptid, hiredate, mgr, available,
+        imgpath
+    </sql>
+    <sql id="fields">
+        id, `name`, loginname, address, sex, remark, deptid, hiredate, mgr, available, imgpath
+    </sql>
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        insert into sys_user (`name`, loginname, address, sex, remark, pwd, deptid, hiredate, mgr, ordernum, imgpath)
+        values(#{name}, #{loginname}, #{address}, #{sex}, #{remark}, #{pwd}, #{deptid}, #{hiredate}, #{mgr}, #{ordernum}, #{imgpath});
+    </insert>
+    <insert id="insertUserRoles">
+        insert into sys_user_role (sys_user_id, sys_role_id) values
+        <foreach collection="list" item="obj" separator=",">
+            (#{obj.sys_user_id}, #{obj.sys_role_id})
+        </foreach>
+    </insert>
+    <update id="update">
+        update sys_user
+        <set>
+            id = #{id},
+            <if test="name != null and name != ''">
+                `name` = #{name},
+            </if>
+            <if test="address != null and address != ''">
+                address = #{address},
+            </if>
+            <if test="sex != null and sex != ''">
+                sex = #{sex},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+            <if test="pwd != null and pwd != ''">
+                pwd = #{pwd},
+            </if>
+            <if test="hiredate != null">
+                hiredate = #{hiredate},
+            </if>
+            <if test="imgpath != null and imgpath != ''">
+                imgpath = #{imgpath}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <update id="updatePwd">
+        update sys_user set pwd = #{pwd} where loginname = #{loginname}
+    </update>
+
+    <select id="findUserById" resultType="com.zcx.pojo.Sys_user">
+        select <include refid="fields"/> from sys_user where id = #{id}
+    </select>
+    <select id="findUserByLoginname" resultType="com.zcx.pojo.Sys_user">
+        select <include refid="main_field"/> from sys_user where loginname = #{loginname}
+    </select>
+    <select id="findUserByDeptId" resultType="com.zcx.pojo.Sys_user">
+        select id, `name`, loginname, address, sex, remark, hiredate, mgr, available from sys_user
+        where deptid = #{deptId}
+        order by ordernum
+    </select>
+    <resultMap id="findUser" type="Sys_user">
+        <id property="id" column="id"/>
+        <association property="sys_dept" column="deptid" javaType="Sys_dept"
+                     select="com.zcx.mapper.Sys_deptMapper.findById"/>
+        <association property="mgrSys_user" column="mgr" javaType="Sys_user"
+                     select="findUserById"/>
+        <collection property="sys_roleList" javaType="ArrayList" ofType="Sys_role" column="id"
+                    select="com.zcx.mapper.Sys_roleMapper.findRoleByUserId"/>
+    </resultMap>
+    <select id="findPage" resultType="com.zcx.pojo.Sys_user" resultMap="findUser">
+        select <include refid="fields"/> from sys_user
+        <if test="obj != null">
+            <where>
+                <if test="obj.name != null and obj.name != ''">
+                    name like '%${obj.name}%'
+                </if>
+                <if test="obj.loginname != null and obj.loginname != ''">
+                    and loginname like '%${obj.loginname}%'
+                </if>
+            </where>
+        </if>
+        limit #{offset}, #{rows}
+    </select>
+    <select id="totalRows" resultType="java.lang.Integer">
+        select count(*) from sys_user
+    </select>
+</mapper>

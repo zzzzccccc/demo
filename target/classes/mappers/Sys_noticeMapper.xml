@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zcx.mapper.Sys_noticeMapper">
+    <insert id="insert">
+        insert into sys_notice (title, `content`, createtime, opername)
+        values (#{title}, #{content}, #{createtime}, #{opername})
+    </insert>
+    <update id="update">
+        update sys_notice
+        <set>
+            id = #{id},
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="content != null and content != ''">
+                content = #{content}
+            </if>
+        </set>
+
+        where id = #{id}
+    </update>
+    <delete id="deletes" parameterType="Map">
+        delete from sys_notice where id in
+        <foreach collection="ids" index="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="findPage" resultType="com.zcx.pojo.Sys_notice" parameterType="com.zcx.mapper.Page">
+        select id, title, `content`, createtime, opername from sys_notice
+        <if test="obj != null">  <!-- if标签中不用使用#{} -->
+            <where>
+                <if test="obj.id != null">
+                    id like "%${obj.id}%"
+                </if>
+                <if test="obj.opername != null and obj.opername != ''">
+                    and opername like "%${obj.opername}%"
+                </if>
+            </where>
+        </if>
+        limit #{offset}, #{rows}
+    </select>
+    <select id="totalRows" resultType="Integer">
+        select count(*) from sys_notice
+    </select>
+</mapper>

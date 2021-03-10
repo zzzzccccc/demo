@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zcx.mapper.Sys_loginfoMapper">
+    <insert id="insert" parameterType="Sys_loginfo">
+        insert into sys_loginfo (loginname, loginip, logintime) values (#{loginname}, #{loginip}, #{logintime})
+    </insert>
+    <delete id="deletes" parameterType="Map">
+        delete from sys_loginfo where id in
+        <foreach collection="ids" index="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="findPage" resultType="com.zcx.pojo.Sys_loginfo" parameterType="Map">
+        select id, loginname, loginip, logintime from sys_loginfo limit #{offset}, #{rows}
+    </select>
+    <select id="totalRows" resultType="java.lang.Long">
+        select count(*) AS totalRows from sys_role
+    </select>
+</mapper>

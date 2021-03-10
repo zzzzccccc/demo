@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zcx.mapper.Bus_providerMapper">
+    <insert id="insert">
+        insert into bus_provider (`name`, zip, address, telephone, connectionperson, phone, bank, account, email, fax)
+        values (#{name}, #{zip}, #{address}, #{telephone}, #{connectionperson}, #{phone},
+                #{bank}, #{account}, #{email}, #{fax})
+    </insert>
+    <update id="update">
+        update bus_provider
+        <set>
+            id = #{id},
+            <if test="name != null and name != ''">
+                `name` = #{name},
+            </if>
+            <if test="zip != null and zip != ''">
+                zip = #{zip},
+            </if>
+            <if test="address != null and address != ''">
+                address = #{address},
+            </if>
+            <if test="telephone != null and telephone != ''">
+                telephone = #{telephone},
+            </if>
+            <if test="connectionperson != null and connectionperson != ''">
+                connectionperson = #{connectionperson},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="bank != null and bank != ''">
+                bank = #{bank},
+            </if>
+            <if test="account != null and account != ''">
+                `account` = #{account},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="fax != null and fax != ''">
+                fax = #{fax}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="deletes">
+        delete from bus_provider where id in
+        <foreach collection="ids" separator="," open="(" close=")" index="id">
+            #{id}
+        </foreach>
+    </delete>
+    <sql id="fields">
+        id, `name`, zip, address, telephone, connectionperson, phone, bank, `account`, email, fax, available
+    </sql>
+    <select id="findPage" resultType="com.zcx.pojo.Bus_provider">
+        select <include refid="fields"/> from bus_provider
+        <if test="obj != null">
+            <where>
+                <if test="obj.name != null and obj.name != ''">
+                    obj.name like '%${obj.name}%'
+                </if>
+                <if test="obj.phone != null and obj.phone != ''">
+                    and obj.phone like '%${obj.phone}%'
+                </if>
+                <if test="obj.account != null and obj.account != ''">
+                    and obj.account like '%${obj.account}%'
+                </if>
+                <if test="obj.fax != null and obj.fax != ''">
+                    and obj.fax like '%${obj.fax}%'
+                </if>
+            </where>
+        </if>
+        limit #{offset}, #{rows}
+    </select>
+    <select id="totalRows" resultType="java.lang.Integer">
+        select count(*) from bus_provider
+    </select>
+    <select id="findById" resultType="com.zcx.pojo.Bus_provider">
+        select <include refid="fields"/> from bus_provider where id = #{id}
+    </select>
+    <select id="findAll" resultType="com.zcx.pojo.Bus_provider">
+        select <include refid="fields"/> from bus_provider
+    </select>
+</mapper>

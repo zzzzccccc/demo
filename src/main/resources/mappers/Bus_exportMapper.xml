@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zcx.mapper.Bus_exportMapper">
+    <insert id="insert">
+        insert into bus_export (providerid, paytype, export_time, export_price, number, remark, goodsid)
+        values (#{providerid}, #{paytype}, #{export_time}, #{export_price}, #{number}, #{remark}, #{goodsid})
+    </insert>
+    <update id="update">
+        update bus_export
+        <set>
+            id = #{id},
+            <if test="paytype != null and paytype != ''">
+                paytype = #{paytype},
+            </if>
+            <if test="export_time != null">
+                export_time = #{export_time},
+            </if>
+            <if test="export_price != null">
+                export_price = #{export_price},
+            </if>
+            <if test="number != null">
+                `number` = #{number},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="deleteById">
+        delete from bus_export where id = #{id}
+    </delete>
+    <sql id="fields">
+        id, providerid, paytype, export_time, export_price, `number`, remark, goodsid
+    </sql>
+    <resultMap id="findBus_export" type="Bus_export">
+        <id column="id" property="id"/>
+        <result column="goodsid" property="goodsid"/>
+        <result column="providerid" property="providerid"/>
+        <association property="bus_goods" column="goodsid" javaType="Bus_goods" select="com.zcx.mapper.Bus_goodsMapper.findById"/>
+        <association property="bus_provider" column="providerid" javaType="Bus_provider" select="com.zcx.mapper.Bus_providerMapper.findById"/>
+    </resultMap>
+    <select id="findById" resultMap="findBus_export" resultType="com.zcx.pojo.Bus_export">
+        select <include refid="fields"/> from bus_export where id = #{id}
+    </select>
+    <select id="findPage" resultMap="findBus_export" resultType="com.zcx.pojo.Bus_export">
+        select <include refid="fields"/> from bus_export
+        <if test="obj != null">
+            <where>
+                <if test="obj.providerid != null">
+                    providerid = #{obj.providerid}
+                </if>
+                <if test="obj.goodsid != null">
+                    and goodsid = #{obj.goodsid}
+                </if>
+                <if test="obj.startExportTime != null">
+                    and export_time >= #{obj.startExportTime}
+                </if>
+                <if test="obj.endExportTime != null">
+                    and export_time <![CDATA[<= ]]> #{obj.endExportTime}
+                </if>
+            </where>
+        </if>
+        order by export_time limit #{offset}, #{rows}
+    </select>
+    <select id="totalRows" resultType="java.lang.Integer">
+        select count(id) from bus_export
+    </select>
+</mapper>

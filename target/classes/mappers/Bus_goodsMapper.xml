@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zcx.mapper.Bus_goodsMapper">
+    <sql id="fields">
+        id, `name`, providerid, produce_place, size, packaging, `code`, `description`, price, `number`, dangernum,
+        img, available
+    </sql>
+    <insert id="insert">
+        insert into bus_goods
+        (`name`, providerid, produce_place, size, packaging, code, description, price, number, dangernum, img, available)
+        values (#{name}, #{providerid}, #{produce_place}, #{size}, #{packaging}, #{code},
+                #{description}, #{price}, #{number}, #{dangernum}, #{img}, #{available})
+    </insert>
+    <update id="update">
+        update bus_goods
+        <set>
+            id = #{id},
+            <if test="name != null and name != ''">
+                `name` = #{name},
+            </if>
+            <if test="produce_place != null and produce_place != ''">
+                produce_place = #{produce_place},
+            </if>
+            <if test="size != null and size != ''">
+                size = #{size},
+            </if>
+            <if test="packaging != null and packaging != ''">
+                packaging = #{packaging},
+            </if>
+            <if test="code != null and code != ''">
+                `code` = #{code},
+            </if>
+            <if test="description != null and description != ''">
+                `description` = #{description},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="number != null">
+                `number` = #{number},
+            </if>
+            <if test="dangernum != null">
+                dangernum = #{dangernum},
+            </if>
+            <if test="img != null">
+                img = #{img}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <update id="updateNumber">
+        update bus_goods set number = number + #{number} where id = #{id}
+    </update>
+    <resultMap id="findGoods" type="Bus_goods">
+        <id column="id" property="id"/>
+        <association property="bus_provider" javaType="Bus_provider" column="providerid" select="com.zcx.mapper.Bus_providerMapper.findById"/>
+    </resultMap>
+    <select id="findPage" resultMap="findGoods" resultType="com.zcx.pojo.Bus_goods">
+        select <include refid="fields"/> from bus_goods
+        <if test="obj != null">
+            <where>
+                <if test="obj.name != null and obj.name != ''">
+                    name like '%${obj.name}%'
+                </if>
+                <if test="obj.providerid != null">
+                    and providerid = #{obj.providerid}
+                </if>
+                <if test="obj.code != null and obj.code != ''">
+                    and `code` like '%${obj.code}%'
+                </if>
+            </where>
+        </if>
+        limit #{offset}, #{rows}
+    </select>
+    <select id="totalRows" resultType="java.lang.Integer">
+        select count(id) from bus_goods
+    </select>
+    <select id="findById" resultMap="findGoods" resultType="com.zcx.pojo.Bus_goods">
+        select <include refid="fields"/> from bus_goods where id = #{id}
+    </select>
+    <select id="findAll" resultType="com.zcx.pojo.Bus_goods">
+        select <include refid="fields"/> from bus_goods
+    </select>
+    <select id="findByProviderId" resultType="com.zcx.pojo.Bus_goods">
+        select <include refid="fields"/> from bus_goods where providerid = #{providerid}
+    </select>
+    <select id="lessGoods" resultType="com.zcx.pojo.Bus_goods">
+        select <include refid="fields"/> from bus_goods
+        where number <![CDATA[<=]]> dangernum
+    </select>
+</mapper>
